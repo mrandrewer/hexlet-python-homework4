@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "homework2"
+name = "hexlet-python-homework2"
 version = "0.1.0"
 description = ""
 authors = ["Andrei Belskii 3107d"]
@@ -7,7 +7,10 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
+pyqt5 = "^5.15.11"
 
+[tool.poetry.group.dev.dependencies]
+flake8 = "^7.1.1"
 
 [build-system]
 requires = ["poetry-core"]
