@@ -1,4 +1,4 @@
-from PyQt5.QtSql import QSqlQueryModel
+from PyQt5.QtSql import QSqlQueryModel, QSqlQuery
 from PyQt5.QtCore import QObject, pyqtSlot
 from PyQt5.QtWidgets import (
     QTableView,
@@ -18,11 +18,28 @@ class TeacherModel(QSqlQueryModel):
 
     def __init__(self, parent: QObject | None = ...) -> None:
         super().__init__(parent)
+        self.refresh_data()
+
+    def refresh_data(self):
         sql = '''
             select id, full_name, phone, email, comment
             from teachers;
         '''
         self.setQuery(sql)
+
+    def add(self, full_name, phone, email, comment):
+        add_query = QSqlQuery()
+        sql = '''
+            insert into teachers (full_name, phone, email, comment)
+            values ( :full_name, :phone, :email, :comment)
+        '''
+        add_query.prepare(sql)
+        add_query.bindValue(':full_name', full_name[:500])
+        add_query.bindValue(':phone', phone[:12])
+        add_query.bindValue(':email', email[:100])
+        add_query.bindValue(':comment', comment)
+        add_query.exec_()
+        self.refresh_data()
 
 
 class TeacherView(QTableView):
@@ -35,7 +52,13 @@ class TeacherView(QTableView):
     @pyqtSlot()
     def add(self):
         dialog = TeacherDialog(self)
-        dialog.exec()
+        if dialog.exec():
+            self.model().add(
+                dialog.full_name,
+                dialog.phone,
+                dialog.email,
+                dialog.comment
+            )
 
     @pyqtSlot()
     def update(self):
@@ -50,6 +73,8 @@ class TeacherDialog(QDialog):
 
     def __init__(self, parent: QWidget | None = ...) -> None:
         super().__init__(parent)
+
+        self.setWindowTitle("Учитель")
 
         full_name_lbl = QLabel("&ФИО", parent=self)
         self.__full_name_edit = QLineEdit(parent=self)
@@ -81,6 +106,7 @@ class TeacherDialog(QDialog):
         layout.addWidget(self.__comment_edit)
 
         btn_layout = QHBoxLayout()
+        btn_layout.addStretch()
         btn_layout.addWidget(ok_btn)
         btn_layout.addWidget(cancel_btn)
         layout.addLayout(btn_layout)
