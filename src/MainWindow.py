@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import pyqtSlot
 from MainMenu import MainMenu
 from Teacher import TeacherView
+from Test import TestView
 
 
 class MainWindow(QMainWindow):
@@ -15,9 +16,11 @@ class MainWindow(QMainWindow):
         super().__init__(parent)
 
         widget = QWidget(self)
-        view = TeacherView(widget)
+        teacher_view = TeacherView(widget)
+        test_view = TestView(widget)
         layout = QVBoxLayout()
-        layout.addWidget(view)
+        layout.addWidget(teacher_view)
+        layout.addWidget(test_view)
         widget.setLayout(layout)
         self.setCentralWidget(widget)
 
@@ -25,9 +28,12 @@ class MainWindow(QMainWindow):
         self.setMenuBar(main_menu)
         main_menu.about.triggered.connect(self.about)
         main_menu.about_qt.triggered.connect(self.about_qt)
-        main_menu.teacher_add.triggered.connect(view.add)
-        main_menu.teacher_update.triggered.connect(view.update)
-        main_menu.teacher_delete.triggered.connect(view.delete)
+        main_menu.teacher_add.triggered.connect(teacher_view.add)
+        main_menu.teacher_update.triggered.connect(teacher_view.update)
+        main_menu.teacher_delete.triggered.connect(teacher_view.delete)
+        main_menu.test_add.triggered.connect(test_view.add)
+        main_menu.test_update.triggered.connect(test_view.update)
+        main_menu.test_delete.triggered.connect(test_view.delete)
 
     @pyqtSlot()
     def about(self):
