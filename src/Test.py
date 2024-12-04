@@ -1,4 +1,9 @@
-from PyQt5.QtSql import QSqlTableModel, QSqlQuery
+from PyQt5.QtSql import (
+    QSqlRelationalTableModel, 
+    QSqlRelation,
+    QSqlRelationalDelegate,
+    QSqlQuery
+)
 from PyQt5.QtCore import QObject, pyqtSlot, Qt
 from PyQt5.QtWidgets import (
     QTableView,
@@ -15,11 +20,12 @@ from PyQt5.QtWidgets import (
 )
 
 
-class TestModel(QSqlTableModel):
+class TestModel(QSqlRelationalTableModel):
 
     def __init__(self, parent: QObject | None = ...) -> None:
         super().__init__(parent)
         self.setTable('tests')
+        self.setRelation(1, QSqlRelation('teachers', 'id', 'full_name'))
         self.setHeaderData(1, Qt.Horizontal, "Автор")
         self.setHeaderData(2, Qt.Horizontal, "Название")
         self.setHeaderData(3, Qt.Horizontal, "Содержание")
@@ -78,6 +84,7 @@ class TestView(QTableView):
         super().__init__(parent)
         model = TestModel(parent=self)
         self.setModel(model)
+        self.setItemDelegate(QSqlRelationalDelegate(self))
         self.setSelectionBehavior(self.SelectRows)
         self.setSelectionMode(self.SingleSelection)
         self.hideColumn(0)
