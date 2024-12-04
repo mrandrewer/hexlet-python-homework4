@@ -29,7 +29,7 @@ class TestModel(QSqlRelationalTableModel):
         self.setHeaderData(1, Qt.Horizontal, "Автор")
         self.setHeaderData(2, Qt.Horizontal, "Название")
         self.setHeaderData(3, Qt.Horizontal, "Содержание")
-        self.setEditStrategy(self.OnManualSubmit)
+        self.setEditStrategy(self.OnRowChange)
         self.select()
 
     def get(self, id):
