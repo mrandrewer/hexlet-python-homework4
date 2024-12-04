@@ -27,11 +27,32 @@ class TeacherModel(QSqlQueryModel):
         '''
         self.setQuery(sql)
 
+    def get(self, id):
+        sql = '''
+            select full_name, phone, email, comment
+            from teachers
+            where id = :id;
+        '''
+        get_query = QSqlQuery()
+        get_query.prepare(sql)
+        get_query.bindValue(':id', id)
+        get_query.exec_()
+        if get_query.isActive():
+            get_query.first()
+            return (
+                get_query.value('full_name'),
+                get_query.value('phone'),
+                get_query.value('email'),
+                get_query.value('comment')
+            )
+        self.refresh_data()
+        return ('', '', '', '')
+
     def add(self, full_name, phone, email, comment):
         add_query = QSqlQuery()
         sql = '''
             insert into teachers (full_name, phone, email, comment)
-            values ( :full_name, :phone, :email, :comment)
+            values ( :full_name, :phone, :email, :comment);
         '''
         add_query.prepare(sql)
         add_query.bindValue(':full_name', full_name[:500])
@@ -39,6 +60,25 @@ class TeacherModel(QSqlQueryModel):
         add_query.bindValue(':email', email[:100])
         add_query.bindValue(':comment', comment)
         add_query.exec_()
+        self.refresh_data()
+
+    def update(self, id, full_name, phone, email, comment):
+        upd_query = QSqlQuery()
+        sql = '''
+            update teachers set
+                full_name = :full_name,
+                phone = :phone,
+                email = :email,
+                comment = :comment
+            where id = :id;
+        '''
+        upd_query.prepare(sql)
+        upd_query.bindValue(':id', id)
+        upd_query.bindValue(':full_name', full_name[:500])
+        upd_query.bindValue(':phone', phone[:12])
+        upd_query.bindValue(':email', email[:100])
+        upd_query.bindValue(':comment', comment)
+        upd_query.exec_()
         self.refresh_data()
 
 
@@ -62,7 +102,28 @@ class TeacherView(QTableView):
 
     @pyqtSlot()
     def update(self):
-        QMessageBox.information(self, "Учитель", "Редактироваие")
+        dialog = TeacherDialog(self)
+        row = self.currentIndex().row()
+        teacher_id = self.model().record(row).value(0)
+        (full_name, phone, email, comment) = self.model().get(teacher_id)
+        if not full_name:
+            QMessageBox.warning(
+                self,
+                "Учитель",
+                "Учитель не был найден в базе")
+            return
+        dialog.full_name = full_name
+        dialog.phone = phone
+        dialog.email = email
+        dialog.comment = comment
+        if dialog.exec():
+            self.model().update(
+                teacher_id,
+                dialog.full_name,
+                dialog.phone,
+                dialog.email,
+                dialog.comment
+            )
 
     @pyqtSlot()
     def delete(self):
@@ -127,17 +188,33 @@ class TeacherDialog(QDialog):
         result = self.__full_name_edit.text().strip()
         return None if result == '' else result
 
+    @full_name.setter
+    def full_name(self, value):
+        self.__full_name_edit.setText(value)
+
     @property
     def phone(self):
         result = self.__phone_edit.text().strip()
         return None if result == '' else result
+
+    @phone.setter
+    def phone(self, value):
+        self.__phone_edit.setText(value)
 
     @property
     def email(self):
         result = self.__email_edit.text().strip()
         return None if result == '' else result
 
+    @email.setter
+    def email(self, value):
+        self.__email_edit.setText(value)
+
     @property
     def comment(self):
         result = self.__comment_edit.toPlainText().strip()
         return None if result == '' else result
+
+    @comment.setter
+    def comment(self, value):
+        self.__comment_edit.setText(value)
