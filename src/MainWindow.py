@@ -32,7 +32,6 @@ class MainWindow(QMainWindow):
         main_menu.teacher_update.triggered.connect(teacher_view.update)
         main_menu.teacher_delete.triggered.connect(teacher_view.delete)
         main_menu.test_add.triggered.connect(test_view.add)
-        main_menu.test_update.triggered.connect(test_view.update)
         main_menu.test_delete.triggered.connect(test_view.delete)
 
     @pyqtSlot()

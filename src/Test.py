@@ -22,6 +22,7 @@ class TestModel(QSqlTableModel):
         self.setHeaderData(1, Qt.Horizontal, "Автор")
         self.setHeaderData(2, Qt.Horizontal, "Название")
         self.setHeaderData(3, Qt.Horizontal, "Содержание")
+        self.setEditStrategy(self.OnManualSubmit)
         self.select()
 
 
@@ -41,9 +42,6 @@ class TestView(QTableView):
         hh.setSectionResizeMode(3, hh.Stretch)
 
     def add(self):
-        pass
-
-    def update(self):
         pass
 
     def delete(self):

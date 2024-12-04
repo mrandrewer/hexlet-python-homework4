@@ -12,7 +12,6 @@ class MainMenu(QMenuBar):
 
         test_menu = self.addMenu('Задача')
         self.__test_add = test_menu.addAction('Добавить')
-        self.__test_update = test_menu.addAction('Редактировать')
         self.__test_delete = test_menu.addAction('Удалить')
 
         help_menu = self.addMenu('Справка')
@@ -42,10 +41,6 @@ class MainMenu(QMenuBar):
     @property
     def test_add(self):
         return self.__test_add
-
-    @property
-    def test_update(self):
-        return self.__test_update
 
     @property
     def test_delete(self):
