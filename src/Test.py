@@ -1,10 +1,8 @@
 from PyQt5.QtSql import (
-    QSqlRelationalTableModel, 
-    QSqlRelation,
-    QSqlRelationalDelegate,
+    QSqlTableModel,
     QSqlQuery
 )
-from PyQt5.QtCore import QObject, pyqtSlot, Qt
+from PyQt5.QtCore import QAbstractItemModel, QModelIndex, QObject, pyqtSlot, Qt
 from PyQt5.QtWidgets import (
     QTableView,
     QWidget,
@@ -16,16 +14,17 @@ from PyQt5.QtWidgets import (
     QComboBox,
     QPushButton,
     QVBoxLayout,
-    QHBoxLayout
+    QHBoxLayout,
+    QStyledItemDelegate,
+    QStyleOptionViewItem
 )
 
 
-class TestModel(QSqlRelationalTableModel):
+class TestModel(QSqlTableModel):
 
     def __init__(self, parent: QObject | None = ...) -> None:
         super().__init__(parent)
         self.setTable('tests')
-        self.setRelation(1, QSqlRelation('teachers', 'id', 'full_name'))
         self.setHeaderData(1, Qt.Horizontal, "Автор")
         self.setHeaderData(2, Qt.Horizontal, "Название")
         self.setHeaderData(3, Qt.Horizontal, "Содержание")
@@ -84,7 +83,7 @@ class TestView(QTableView):
         super().__init__(parent)
         model = TestModel(parent=self)
         self.setModel(model)
-        self.setItemDelegate(QSqlRelationalDelegate(self))
+        self.setItemDelegateForColumn(1, TestAuthorDelegate(self))
         self.setSelectionBehavior(self.SelectRows)
         self.setSelectionMode(self.SingleSelection)
         self.hideColumn(0)
@@ -184,3 +183,34 @@ class TestDialog(QDialog):
     def content(self):
         result = self.__content_edit.toPlainText().strip()
         return None if result == '' else result
+
+
+class TestAuthorDelegate(QStyledItemDelegate):
+
+    def __init__(self, parent: QObject | None = ...) -> None:
+        super().__init__(parent)
+
+    def createEditor(
+            self,
+            parent: QWidget | None,
+            option: QStyleOptionViewItem,
+            index: QModelIndex) -> QWidget | None:
+        author_edit = QComboBox(parent)
+        author_edit.addItem("", None)
+        for id, name in index.model().get_authors().items():
+            author_edit.addItem(name, id)
+        return author_edit
+
+    def setEditorData(
+            self,
+            editor: QWidget | None,
+            index: QModelIndex) -> None:
+        item_index = editor.findData(index.data())
+        editor.setCurrentIndex(item_index)
+
+    def setModelData(
+            self,
+            editor: QWidget | None,
+            model: QAbstractItemModel | None,
+            index: QModelIndex) -> None:
+        model.setData(index, editor.currentData())
