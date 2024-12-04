@@ -1,5 +1,5 @@
 from PyQt5.QtSql import QSqlQueryModel, QSqlQuery
-from PyQt5.QtCore import QObject, pyqtSlot
+from PyQt5.QtCore import QObject, pyqtSlot, Qt
 from PyQt5.QtWidgets import (
     QTableView,
     QWidget,
@@ -19,6 +19,10 @@ class TeacherModel(QSqlQueryModel):
     def __init__(self, parent: QObject | None = ...) -> None:
         super().__init__(parent)
         self.refresh_data()
+        self.setHeaderData(1, Qt.Horizontal, "ФИО")
+        self.setHeaderData(2, Qt.Horizontal, "Телефон")
+        self.setHeaderData(3, Qt.Horizontal, "Email")
+        self.setHeaderData(4, Qt.Horizontal, "Комментарий")
 
     def refresh_data(self):
         sql = '''
@@ -99,6 +103,15 @@ class TeacherView(QTableView):
         super().__init__(parent)
         model = TeacherModel(self)
         self.setModel(model)
+        self.setSelectionBehavior(self.SelectRows)
+        self.setSelectionMode(self.SingleSelection)
+        self.hideColumn(0)
+        self.setWordWrap(False)
+        vh = self.verticalHeader()
+        vh.setSectionResizeMode(vh.Fixed)
+        hh = self.horizontalHeader()
+        hh.setSectionResizeMode(hh.ResizeToContents)
+        hh.setSectionResizeMode(4, hh.Stretch)
 
     @pyqtSlot()
     def add(self):
