@@ -1,4 +1,4 @@
-from PyQt5.QtSql import QSqlDatabase, QSqlTableModel, QSqlQuery
+from PyQt5.QtSql import QSqlTableModel, QSqlQuery
 from PyQt5.QtCore import QObject, pyqtSlot, Qt
 from PyQt5.QtWidgets import (
     QTableView,
@@ -26,6 +26,14 @@ class TestModel(QSqlTableModel):
         self.setEditStrategy(self.OnManualSubmit)
         self.select()
 
+    def get(self, id):
+        self.select()
+        for i in range(0, self.rowCount()):
+            rec = self.record(i)
+            if rec.field('id').value() == id:
+                return rec.field('name').value()
+        return None
+
     def add(self, author, name, content):
         rec = self.record()
         rec.clearValues()
@@ -36,6 +44,16 @@ class TestModel(QSqlTableModel):
         rec.setValue('content', content)
         self.insertRecord(-1, rec)
         self.submitAll()
+        self.select()
+
+    def delete(self, id):
+        self.select()
+        for i in range(0, self.rowCount()):
+            rec = self.record(i)
+            if rec.field('id').value() == id:
+                self.removeRow(i)
+                self.submitAll()
+                break
         self.select()
 
     def get_authors(self):
@@ -79,7 +97,21 @@ class TestView(QTableView):
             )
 
     def delete(self):
-        pass
+        row = self.currentIndex().row()
+        test_id = self.model().record(row).value('id')
+        test_name = self.model().get(test_id)
+        if not test_name:
+            QMessageBox.warning(
+                self,
+                "Задача",
+                "Задача не была найден в базе")
+            return
+        ans = QMessageBox.question(
+            self,
+            "Задача",
+            f"Вы уверены что хотите удалить задачу {test_name}")
+        if ans == QMessageBox.Yes:
+            self.model().delete(test_id)
 
 
 class TestDialog(QDialog):
