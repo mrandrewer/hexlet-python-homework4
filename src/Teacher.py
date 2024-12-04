@@ -81,6 +81,17 @@ class TeacherModel(QSqlQueryModel):
         upd_query.exec_()
         self.refresh_data()
 
+    def delete(self, id):
+        del_query = QSqlQuery()
+        sql = '''
+            delete from teachers
+            where id = :id;
+        '''
+        del_query.prepare(sql)
+        del_query.bindValue(':id', id)
+        del_query.exec_()
+        self.refresh_data()
+
 
 class TeacherView(QTableView):
 
@@ -127,7 +138,21 @@ class TeacherView(QTableView):
 
     @pyqtSlot()
     def delete(self):
-        QMessageBox.information(self, "Учитель", "Удаление")
+        row = self.currentIndex().row()
+        teacher_id = self.model().record(row).value(0)
+        (full_name, _, _, _) = self.model().get(teacher_id)
+        if not full_name:
+            QMessageBox.warning(
+                self,
+                "Учитель",
+                "Учитель не был найден в базе")
+            return
+        ans = QMessageBox.question(
+            self,
+            "Учитель",
+            f"Вы уверены что хотите удалить учителя {full_name}")
+        if ans == QMessageBox.Yes:
+            self.model().delete(teacher_id)
 
 
 class TeacherDialog(QDialog):
