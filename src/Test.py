@@ -2,7 +2,15 @@ from PyQt5.QtSql import (
     QSqlTableModel,
     QSqlQuery
 )
-from PyQt5.QtCore import QAbstractItemModel, QModelIndex, QObject, pyqtSlot, Qt
+from PyQt5.QtCore import (
+    QAbstractItemModel,
+    QModelIndex,
+    QObject,
+    QSize,
+    pyqtSlot,
+    Qt
+)
+from PyQt5.QtGui import QPainter
 from PyQt5.QtWidgets import (
     QTableView,
     QWidget,
@@ -16,7 +24,9 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
     QHBoxLayout,
     QStyledItemDelegate,
-    QStyleOptionViewItem
+    QStyleOptionViewItem,
+    QApplication,
+    QStyle
 )
 
 
@@ -214,3 +224,31 @@ class TestAuthorDelegate(QStyledItemDelegate):
             model: QAbstractItemModel | None,
             index: QModelIndex) -> None:
         model.setData(index, editor.currentData())
+
+    def paint(
+            self,
+            painter: QPainter | None,
+            option: QStyleOptionViewItem,
+            index: QModelIndex) -> None:
+        author_name = index.model().get_authors().get(index.data())
+        if author_name:
+            new_option = QStyleOptionViewItem(option)
+            new_option.text = author_name
+            QApplication \
+                .style() \
+                .drawControl(QStyle.CE_ItemViewItem, new_option, painter)
+            return
+        return super().paint(painter, option, index)
+
+    def sizeHint(
+            self,
+            option: QStyleOptionViewItem,
+            index: QModelIndex) -> QSize:
+        author_name = index.model().get_authors().get(index.data())
+        if author_name:
+            return option.fontMetrics.boundingRect(
+                option.rect,
+                Qt.TextSingleLine,
+                author_name) \
+                .size()
+        return super().sizeHint(option, index)
