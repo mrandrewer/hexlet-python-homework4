@@ -49,7 +49,7 @@ class MainMenu(QMenuBar):
     @property
     def test_delete(self):
         return self.__test_delete
-    
+
     @property
     def variant_add(self):
         return self.__variant_add
