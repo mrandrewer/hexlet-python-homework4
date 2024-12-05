@@ -9,3 +9,10 @@ insert into tests (teacher_id, name, content) values
 (2, 'Задача 2', 'Создать приложение с подключением к БД.\nДобавить в приложение CRUD для таблицы Teachers на базе QSqlQueryModel до 2.12.'),
 (3, 'Задача 3', 'Добавить в приложение CRUD для таблицы Test на базе QSqlTableModel до 9.12.'),
 (3, 'Задача 4', 'Добавить в приложение CRUD для таблицы Test на базе QSqlRelationalTableModel до 16.12.');
+
+insert into variants (teacher_id, title) values
+(1, 'Вариант 1'),
+(1, 'Вариант 2'),
+(2, 'Вариант 3'),
+(3, 'Вариант 4'),
+(4, 'Вариант 5');
