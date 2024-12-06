@@ -35,6 +35,11 @@ class VariantModel(QSqlRelationalTableModel):
         self.setEditStrategy(self.OnRowChange)
         self.select()
 
+    def flags(self, index):
+        if index.column() == 3:
+            return Qt.ItemIsEnabled
+        return super().flags(index)
+
     def get(self, id):
         self.select()
         for i in range(0, self.rowCount()):
